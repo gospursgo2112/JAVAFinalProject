@@ -3,8 +3,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
@@ -14,6 +17,8 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -24,7 +29,6 @@ import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.TimePicker;
 import com.github.lgooddatepicker.components.TimePickerSettings;
 import com.github.lgooddatepicker.components.TimePickerSettings.TimeArea;
-
 
 public class Reminder extends TimerTask{
 	private JFrame getTimeFrame;
@@ -37,68 +41,107 @@ public class Reminder extends TimerTask{
 	private TimePicker timePicker;
 	private Timer timer;
 	private Date inputTime;
+	private JFrame frame;
 	
 	public static void main(String[] args) {
 		Reminder reminder = new Reminder();
-		reminder.getTimeFrame();
+		JFrame frame = new JFrame();
+		reminder.setTimeWindow(frame);
     }
 	
 	
 	//設定時間
-    public void getTimeFrame(){
+    public void setTimeWindow(JFrame targetFrame){
+    	frame = targetFrame;
+    	Color backgroundColor = new Color(39, 76, 119);
+    	Color textColor = new Color(231, 236, 239);
+    	
     	getTimeFrame = new JFrame("設定提醒時間:");
     	getTimeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	getTimeFrame.setUndecorated(true);
     	getTimeFrame.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
-    	//getTimeFrame.setLayout(new GridLayout(5,0, 40, 15));
-    	
-    	getTimeFrame.setSize(250, 200);
+    	//getTimeFrame.setLayout(new GridLayout(5,0, 40, 15));   	
+    	getTimeFrame.setSize(240, 220);
     	getTimeFrame.setLocationRelativeTo(null);
-    	//getTimeFrame.getContentPane().setBackground(new Color(117, 159, 189));
+    	getTimeFrame.getContentPane().setBackground(backgroundColor);
     	
-    	JLabel dateLable = new JLabel("選擇日期:");
+    	//選擇日期 :
+    	JLabel dateLable = new JLabel("選擇日期 :");
     	dateLable.setFont(new Font("微軟正黑體", Font.BOLD, 15));
+    	dateLable.setForeground(textColor);
     	getTimeFrame.add(dateLable);
     	
     	datePicker = new DatePicker();
-
     	getTimeFrame.add(datePicker);
-        
     	
-    	JLabel timeLable = new JLabel("選擇時間:");
+        //選擇時間 :
+    	JLabel timeLable = new JLabel("選擇時間 :");
     	timeLable.setFont(new Font("微軟正黑體", Font.BOLD, 15));
+    	timeLable.setForeground(textColor);
     	getTimeFrame.add(timeLable);
     	
     	TimePickerSettings timeSettings = new TimePickerSettings();
-        timeSettings.setColor(TimeArea.TimePickerTextValidTime, new Color(46, 46, 46));
+        timeSettings.setColor(TimeArea.TimePickerTextValidTime, new Color(55, 154, 225));
         timeSettings.initialTime = LocalTime.now();
         timePicker = new TimePicker(timeSettings);
         getTimeFrame.add(timePicker);
     	
-        checkButton = new JButton("設定提醒");
-        checkButton.setFont(new Font("微軟正黑體", Font.BOLD, 13));
-        //checkButton.setBackground(new Color(50, 90, 159));
-        getTimeFrame.add(checkButton);
+        //中間按鈕區塊
+        JPanel centerButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 0));
+        centerButtonPanel.setPreferredSize(new Dimension(250, 40)); 
+        centerButtonPanel.setBackground(backgroundColor);
         
-        cancelButton = new JButton("取消提醒");
-        cancelButton.setFont(new Font("微軟正黑體", Font.BOLD, 13));
-        getTimeFrame.add(cancelButton);
+		ImageIcon checkIcon=new ImageIcon("check.png");
+		ImageIcon checkRolloverIcon=new ImageIcon("check_Rollover.png");
+		ImageIcon cancelIcon=new ImageIcon("cancel.png");
+		ImageIcon cancelRolloverIcon=new ImageIcon("cancel_Rollover.png");		
+		ImageIcon exitIcon = new ImageIcon("exit.png");
+		ImageIcon exitRolloverIcon = new ImageIcon("exit_Rollover.png");
+		
+		checkButton =new JButton(checkIcon);
+		checkButton.setRolloverIcon( checkRolloverIcon );
+		checkButton.setContentAreaFilled(false);
+		checkButton.setFocusPainted(false);
+		checkButton.setBorderPainted(false);
+		checkButton.setBorder(null);
+		checkButton.setToolTipText( "新增提醒時間" );
+		centerButtonPanel.add(checkButton);
         
-        JPanel panel=new JPanel(new GridLayout(2, 1));
-        panel.setPreferredSize(new Dimension(250, 40));
+        cancelButton = new JButton(cancelIcon);
+        cancelButton.setRolloverIcon( cancelRolloverIcon );
+        cancelButton.setContentAreaFilled(false);
+        cancelButton.setFocusPainted(false);
+        cancelButton.setBorderPainted(false);
+        cancelButton.setBorder(null);
+        cancelButton.setToolTipText( "清除已設定的提醒" );
+        centerButtonPanel.add(cancelButton);
         
-        setTimeTitle= new JLabel("已設定的提醒時間:");
+        getTimeFrame.add(centerButtonPanel);
+
+        //底部文字區塊
+        JPanel buttomTextPanel = new JPanel(new GridLayout(2, 1));
+        buttomTextPanel.setPreferredSize(new Dimension(240, 30));
+        buttomTextPanel.setBackground(backgroundColor);
+        
+        setTimeTitle = new JLabel("已設定的提醒時間:");
         setTimeTitle.setFont(new Font("微軟正黑體", Font.BOLD, 15));
-        panel.add(setTimeTitle);
+        setTimeTitle.setForeground(textColor);
+        buttomTextPanel.add(setTimeTitle);
         
         setTimeLable = new JLabel("無");
         setTimeLable.setFont(new Font("微軟正黑體", Font.BOLD, 15));
-        panel.add(setTimeLable);
+        setTimeLable.setForeground(textColor);
+        buttomTextPanel.add(setTimeLable);
         
-        getTimeFrame.add(panel);
+        getTimeFrame.add(buttomTextPanel);
         
-        exitButton = new JButton("離開");
-        exitButton.setFont(new Font("微軟正黑體", Font.BOLD, 13));
+        exitButton = new JButton(exitIcon);
+        exitButton.setRolloverIcon( exitRolloverIcon );
+        exitButton.setContentAreaFilled(false);
+        exitButton.setFocusPainted(false);
+        exitButton.setBorderPainted(false);
+        exitButton.setBorder(null);
+        exitButton.setToolTipText( "離開" );
         getTimeFrame.add(exitButton);
         
         
@@ -144,11 +187,14 @@ public class Reminder extends TimerTask{
 		    	try {
 		    		inputTime = dateFormatter.parse(
 		    				datePicker.getDateStringOrEmptyString() + " " + timePicker.getTimeStringOrEmptyString());
+		    		setTimeLable.setText(
+		    			datePicker.getDateStringOrEmptyString()+ " " + timePicker.getTimeStringOrEmptyString());
+		    	setSchedule(frame ,inputTime);
 				} catch (ParseException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
+					setTimeLable.setText("輸入日期格式有誤");
 				}
-		    	setTimeLable.setText(inputTime.toString());
-		    	setSchedule(inputTime);
+		    	
 			}
 			else if(event.getSource() == cancelButton){
 				setTimeLable.setText("無");
@@ -160,9 +206,9 @@ public class Reminder extends TimerTask{
 		}
     }
     
-    public void setSchedule(Date inputTime){
+    public void setSchedule(JFrame frame, Date inputTime){
         System.out.println("Reminder的設定時間: " + inputTime);
-        
+        /*
         if(timer == null){
 	        timer = new Timer();
 	        timer.schedule(new Reminder(), inputTime);
@@ -174,6 +220,29 @@ public class Reminder extends TimerTask{
         	timer = new Timer();
         	timer.schedule(new Reminder(), inputTime);
         }
+        */
+        if(timer == null){
+	        timer = new Timer();
+	        timer.schedule(new TimerTask(){
+				public void run() { 
+					frame.setVisible(true);
+				} 
+	        }
+	        , inputTime);
+        }
+        else{
+        	System.out.println("修改EmptyFrame的設定時間:");
+        	timer.cancel();
+        	timer.purge();
+        	timer = new Timer();
+        	timer.schedule(new TimerTask(){
+				public void run() { 
+					frame.setVisible(true);
+				} 
+			}
+		, inputTime);
+        }
+        
     }
     
     public void cancelSchedule(){

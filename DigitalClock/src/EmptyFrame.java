@@ -1,15 +1,11 @@
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-public class EmptyFrame extends Reminder{
+public class EmptyFrame{
 	public static void main(String[] arguments) {
 		EmptyFrame emptyFrame = new EmptyFrame();
 	}
@@ -18,8 +14,7 @@ public class EmptyFrame extends Reminder{
 	private JButton reminderButton;
 	private JButton hideButton;
 	private JTextField textField;
-
-	private Timer timer;
+	private Reminder reminder = new Reminder();
 
 	public JFrame getEmptyFrame() {
 		return emptyFrame;
@@ -73,8 +68,9 @@ public class EmptyFrame extends Reminder{
 		@Override
 		public void actionPerformed( ActionEvent event ){
 			if(event.getSource() == reminderButton){
-				getTimeFrame();
-				//setSchedule(inputTime);
+				if(reminder == null)
+				reminder = new Reminder();
+				reminder.setTimeWindow(getEmptyFrame());	//把要在設定時間顯示的Jframe傳進去
 			}
 			else if(event.getSource() == hideButton){
 				System.out.println("EmptyFrame隱藏");
@@ -83,39 +79,5 @@ public class EmptyFrame extends Reminder{
 			
 		} // end method actionPerformed
 	}
-	@Override
-	public void setSchedule(Date inputTime){
-        System.out.println("EmptyFrame的設定時間: " + inputTime);
-        if(timer == null){
-	        timer = new Timer();
-	        timer.schedule(new TimerTask(){
-				public void run() { 
-					getEmptyFrame().setVisible(true);
-				} 
-	        }
-	        , inputTime);
-        }
-        else{
-        	System.out.println("修改EmptyFrame的設定時間:");
-        	timer.cancel();
-        	timer.purge();
-        	timer = new Timer();
-        	timer.schedule(new TimerTask(){
-				public void run() { 
-					getEmptyFrame().setVisible(true);
-				} 
-			}
-		, inputTime);
-        }
-        
-    }
-	@Override
-	public void cancelSchedule(){
-    	if(timer != null){
-    		timer.cancel();
-    		timer.purge();
-    	}
-    }
-	
-	
+
 }
