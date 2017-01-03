@@ -1,28 +1,31 @@
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JTextField;
+import javax.swing.plaf.basic.BasicInternalFrameUI;
 
-public class EmptyFrame{
-	public static void main(String[] arguments) {
-		EmptyFrame emptyFrame = new EmptyFrame();
-	}
-	//attribute
-	private JFrame emptyFrame;
+public class EmptyFrame{	
+	private JFrame jFrame;
+	private JDesktopPane desktopPane;
+	private JInternalFrame emptyFrame;
 	private JButton reminderButton;
 	private JButton hideButton;
 	private JTextField textField;
-	private Reminder reminder = new Reminder();
+	private Reminder reminder;		//設定Reminder為Data Member
 
-	public JFrame getEmptyFrame() {
+	public JInternalFrame getEmptyFrame() {
 		return emptyFrame;
 	}
 
-	public void setEmptyFrame(JFrame emptyFrame) {
+	public void setEmptyFrame(JInternalFrame emptyFrame) {
 		this.emptyFrame = emptyFrame;
 	}
+	
 	public JTextField getTextField() {
 		return textField;
 	}
@@ -31,13 +34,11 @@ public class EmptyFrame{
 		this.textField = textField;
 	}
 	//constructor
-	public EmptyFrame(){
-		emptyFrame = new JFrame();
+	public EmptyFrame(JDesktopPane desktop){
+		emptyFrame = new JInternalFrame("內部框架 ",true,true,true,true);
 		emptyFrame.setLayout(new FlowLayout());
-		emptyFrame.setSize(400, 300);
-		emptyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		emptyFrame.setLocationRelativeTo(null);
-		
+		emptyFrame.setSize(300, 150);
+				
 		textField = new JTextField(20);
 		emptyFrame.add(textField);
 		
@@ -47,37 +48,31 @@ public class EmptyFrame{
 		hideButton = new JButton("隱藏");
 		emptyFrame.add(hideButton);
 		
-		
 		emptyFrame.setVisible(true);
 		
 		ButtonHandler handler = new ButtonHandler();
 		reminderButton.addActionListener( handler );
 		hideButton.addActionListener( handler );
 		
-	}
-	//copy constuctor
-	public EmptyFrame(EmptyFrame original){
-		emptyFrame = original.getEmptyFrame();
-		emptyFrame.setSize(400, 300);
-		emptyFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		emptyFrame.setVisible(true);
+		//假設reminderTime為讀檔後得到的時間字串
+		String reminderTime = "2016-12-31 22:52";	
+		//在自己的constructor中建立Reminder物件 
+		//Reminder建構元的參數為:PasteIt的JDesktopPane ,要設定提醒的JInternalFrame ,時間字串 (若時間字串為空或第一次新建物件 請傳入 "")
+		reminder = new Reminder(desktop, getEmptyFrame(), reminderTime);
+		desktop.add(emptyFrame);
+		//System.out.println(reminder.getTimeString());	//若要取得時間字串 請呼叫getTimeString()
 	}
 	
 	private class ButtonHandler implements ActionListener {
-	      // handle button event
 		@Override
 		public void actionPerformed( ActionEvent event ){
 			if(event.getSource() == reminderButton){
-				if(reminder == null)
-				reminder = new Reminder();
-				reminder.setTimeWindow(getEmptyFrame());	//把要在設定時間顯示的Jframe傳進去
+				reminder.getSetTimeFrame().setVisible(true);	//按下提醒按鈕後 讓設定時間的視窗顯示
 			}
 			else if(event.getSource() == hideButton){
-				System.out.println("EmptyFrame隱藏");
 				emptyFrame.setVisible(false);
-			}
-			
-		} // end method actionPerformed
+			}	
+		}
 	}
 
 }
